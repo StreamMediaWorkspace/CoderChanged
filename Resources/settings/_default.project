@@ -1,0 +1,77 @@
+{
+  "id": "T0",
+  "fps": {
+    "num": 24,
+    "den": 1
+  },
+  "width": 1280,
+  "height": 720,
+  "sample_rate": 48000,
+  "channels": 2,
+  "channel_layout": 3,
+  "settings": {},
+  "clips": [],
+  "effects": [],
+  "export_path": "",
+  "import_path": "",
+  "files": [],
+  "duration": 300,
+  "scale": 15,
+  "tick_pixels": 100,
+  "playhead_position": 0,
+  "profile": "HD 720p 30 fps",
+  "cuts": [
+    {"id":"0", "layer" : "0", "color": "#fff000", "start": 8, "duration": 50, "end": 58, "shortCut": "ctl+x"}
+	],
+  "layers": [
+    {
+      "id": "0",
+      "name": "name1",
+      "label" : "",
+      "number": 1000000,
+      "y": 0,
+      "lock": false
+    },
+    {
+      "id": "1",
+      "name": "name2",
+      "label" : "",
+      "number": 2000000,
+      "y": 0,
+      "lock": false
+    },
+    {
+      "id": "2",
+      "name": "name3",
+      "label" : "",
+      "number": 3000000,
+      "y": 0,
+      "lock": false
+    },
+    {
+      "id": "L4",
+      "name": "name4",
+      "label" : "",
+      "number": 4000000,
+      "y": 0,
+      "lock": false
+    },
+    {
+      "id": "L5",
+      "name": "name5",
+      "label" : "",
+      "number": 5000000,
+      "y": 0,
+      "lock": false
+    }
+  ],
+  "selected_layers": [],
+  "markers": [  ],
+  "progress": [  ],
+  "history": {
+    "undo": [],
+    "redo": []
+  },
+  "version" : { "openshot-qt" : "0.0.0",
+                "libopenshot" : "0.0.0" }
+}
