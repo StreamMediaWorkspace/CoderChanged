@@ -47,6 +47,45 @@ try:
 except ImportError:
     import simplejson as json
 
+def CutsToClips(cuts):
+    app = get_app()
+
+    clips = []
+    position = 0
+    video_length = 0
+
+    print(cuts)
+
+    cs = app.window.timeline_sync.timeline.Clips()
+    for c in cs:
+        print("-----id=", c.Id())
+        clip_json = Clip.filter(id=c.Id())
+        path = clip_json[0].data["reader"]["path"]
+        print("==============", path, c.Position())
+        offset = c.Position()
+
+        for cut in cuts:
+            try:
+                # Add clip for current preview file
+                clip = openshot.Clip(path)
+                clips.append(clip)
+                    
+                start = float(cut["start_seconds"] - offset)
+                end = float(cut["end_seconds"] - offset)
+                print("=======================-------start:", start, "end:", end)
+                clip.Start(start)
+                clip.End(end)
+                #clip.Position(0)
+                clip.Position(position)
+                position = position + (end - start) - offset
+                #clip.Duration(end-start)
+                video_length = video_length + (end - start)
+            except:
+                log.error('Failed to load media file into preview player: %s' % self.file_path)
+                return clips, video_length
+    
+    return clips, video_length
+
 
 class Cutting(QDialog):
     """ Cutting Dialog """
@@ -129,7 +168,8 @@ class Cutting(QDialog):
         self.r = openshot.Timeline(self.width, self.height, openshot.Fraction(self.fps_num, self.fps_den), self.sample_rate, self.channels, self.channel_layout)
         self.r.info.channel_layout = self.channel_layout
         
-        self.clips = []
+
+        '''
         #cuts = [{"start_seconds":8.466666666666667, "end_seconds":15.3}, {"start_seconds":18.9, "end_seconds":22.133333333333333}]
         position = 0
 
@@ -174,6 +214,17 @@ class Cutting(QDialog):
                 except:
                     log.error('Failed to load media file into preview player: %s' % self.file_path)
                     return
+        '''
+
+        self.clips, self.video_length = CutsToClips(cuts)
+        for clip in self.clips:
+            # Show waveform for audio files
+            if not clip.Reader().info.has_video and clip.Reader().info.has_audio:
+                clip.Waveform(True)
+            if preview:
+                # Display frame #'s during preview
+                clip.display = openshot.FRAME_DISPLAY_CLIP
+            self.r.AddClip(clip)
 
         self.video_length = self.video_length * self.fps_num / self.fps_den
         # Add Video Widget
