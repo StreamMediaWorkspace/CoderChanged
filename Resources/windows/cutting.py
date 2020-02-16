@@ -40,7 +40,7 @@ from classes.logger import log
 from classes.metrics import *
 from windows.preview_thread import PreviewParent
 from windows.video_widget import VideoWidget
-from classes.query import Clip
+from classes.query import Clip, Cut
 
 try:
     import json
@@ -48,7 +48,7 @@ except ImportError:
     import simplejson as json
 
 def CutsToClips(cuts):
-    app = get_app()
+    #app = get_app()
 
     clips = []
     position = 0
@@ -56,36 +56,29 @@ def CutsToClips(cuts):
 
     print(cuts)
 
-    cs = app.window.timeline_sync.timeline.Clips()
-    for c in cs:
-        print("-----id=", c.Id())
-        clip_json = Clip.filter(id=c.Id())
-        path = clip_json[0].data["reader"]["path"]
-        print("==============", path, c.Position())
-        offset = c.Position()
+    for cut in cuts:
+        c = Clip.filter(id=cut["clip"])
+        #print("-------c:",c[0].data["position"], c[0].data)
+        path = c[0].data["reader"]["path"]
+        offset = float(c[0].data["position"])
+        start = float(cut["start"]) - offset
+        end = float(cut["end"]) - offset
+        print("=======================-------start:", start, "end:", end, "position", position)
 
-        for cut in cuts:
-            try:
-                # Add clip for current preview file
-                clip = openshot.Clip(path)
-                clips.append(clip)
-                    
-                start = float(cut["start_seconds"] - offset)
-                end = float(cut["end_seconds"] - offset)
-                print("=======================-------start:", start, "end:", end)
-                clip.Start(start)
-                clip.End(end)
-                #clip.Position(0)
-                clip.Position(position)
-                position = position + (end - start) - offset
-                #clip.Duration(end-start)
-                video_length = video_length + (end - start)
-            except:
-                log.error('Failed to load media file into preview player: %s' % self.file_path)
-                return clips, video_length
+        try:
+            clip = openshot.Clip(path)
+            clip.Start(start)
+            clip.End(end)
+            clip.Position(position)
+            clips.append(clip)
+        except:
+            log.error('Failed to load media file into preview player: %s' % path)
+            return clips, video_length
+
+        position = position + (end - start) - offset
+        video_length = video_length + cut["video_length"]
     
     return clips, video_length
-
 
 class Cutting(QDialog):
     """ Cutting Dialog """
@@ -130,10 +123,11 @@ class Cutting(QDialog):
         self.end_image = None
 
         #timeline = get_app().window.timeline_sync.timeline
-        app = get_app()
-        project = app.project
+        #app = get_app()
+        #project = app.project
 
         # Get some settings from the project
+        '''
         self.fps = project.get(["fps"])
         self.width = project.get(["width"])
         self.height = project.get(["height"])
@@ -143,6 +137,17 @@ class Cutting(QDialog):
         self.fps_num = int(self.fps['num'])
         self.fps_den = int(self.fps['den'])
         self.fps = float(self.fps_num) / float(self.fps_den)
+        '''
+        # Get the original timeline settings
+        self.width = get_app().window.timeline_sync.timeline.info.width
+        self.height = get_app().window.timeline_sync.timeline.info.height
+        self.fps = get_app().window.timeline_sync.timeline.info.fps
+        self.sample_rate = get_app().window.timeline_sync.timeline.info.sample_rate
+        self.channels = get_app().window.timeline_sync.timeline.info.channels
+        self.channel_layout = get_app().window.timeline_sync.timeline.info.channel_layout  
+        self.fps_num = int(self.fps.num)
+        self.fps_den = int(self.fps.den)
+        #self.fps = float(self.fps_num) / float(self.fps_den)
         
 
         '''
@@ -226,7 +231,7 @@ class Cutting(QDialog):
                 clip.display = openshot.FRAME_DISPLAY_CLIP
             self.r.AddClip(clip)
 
-        self.video_length = self.video_length * self.fps_num / self.fps_den
+        #self.video_length = self.video_length * self.fps_num / self.fps_den
         # Add Video Widget
         self.videoPreview = VideoWidget()
         self.videoPreview.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -417,7 +422,7 @@ class Cutting(QDialog):
         self.sliderIgnoreSignal = False
 
         # Convert frame to seconds
-        seconds = (frame_number-1) / self.fps
+        seconds = (frame_number-1) * float(self.fps_den) / float(self.fps_num)
 
         # Convert seconds to time stamp
         time_text = self.secondsToTime(seconds, self.fps_num, self.fps_den)

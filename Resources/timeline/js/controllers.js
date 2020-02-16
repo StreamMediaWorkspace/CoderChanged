@@ -175,7 +175,7 @@ App.controller('TimelineCtrl',function($scope) {
                    //
 				   //  ],
 		cuts: [
-					{id:'0', layer : '0', color: '#fff000', start: 8, duration: 50, end: -1, shortCut: 'ctl+x'},
+					{id:'0', layer : '0', color: '#fff000', start: 8, duration: 2, end: 10, shortCut: 'ctl+x'},
 					//{id:'1', layer : '1', color: '#000fff', start: 30, duration: 10, end: 40.0, shortCut: 'ctl+x'},
 			],
 	  	layers : [
@@ -292,7 +292,7 @@ App.controller('TimelineCtrl',function($scope) {
 	  
 	  // Update internal scope (in seconds)
 	  $scope.MovePlayhead(position_seconds);
-	  $scope.MoveCuts(position_frames);
+	  $scope.MoveCuts(position_seconds);
   };
 
   // Move the playhead to a specific time
@@ -1527,7 +1527,7 @@ $scope.SetTrackLabel = function (label) {
   };
 
   $scope.MoveCuts = function(current_frame) {
-	var frames_per_second = $scope.project.fps.num / $scope.project.fps.den;
+	//var frames_per_second = $scope.project.fps.num / $scope.project.fps.den;
   
 	  var scope = $scope;
 	  for (var i=0; scope.project.cuts && i<scope.project.cuts.length; i++) {
@@ -1539,17 +1539,17 @@ $scope.SetTrackLabel = function (label) {
 				  cut.duration = cut.end - cut.start;
 				  // update cut in Qt (very important =)
 				  if ($scope.Qt && !cut.num ) {
-					  cut.num = $scope.project.fps.num;
-					  cut.den = $scope.project.fps.den;
+					  //cut.num = $scope.project.fps.num;
+					  //cut.den = $scope.project.fps.den;
 
-					  cut.video_length = cut.end - cut.start;
+					  //cut.video_length = cut.end - cut.start;
 
 					  //seconds yanght
-					  cut.start_seconds = toDecimal(((cut.start - 1) / frames_per_second));
-					  cut.end_seconds = toDecimal((cut.end / frames_per_second));
-					  cut.duration_seconds = toDecimal((cut.duration / frames_per_second));
+					  //cut.start_seconds = toDecimal(((cut.start - 1) / frames_per_second));
+					  //cut.end_seconds = toDecimal((cut.end / frames_per_second));
+					  //cut.duration_seconds = toDecimal((cut.duration / frames_per_second));
 				  
-					  timeline.update_cut_data(JSON.stringify(cut));
+					  //timeline.update_cut_data(JSON.stringify(cut));
 				  }
 			  }
 		  }
@@ -1567,10 +1567,10 @@ $scope.SetTrackLabel = function (label) {
         return f;   
     }
   
-  $scope.GetPositionByFrame = function(position_frames) {
+  $scope.GetPositionBySeconds = function(position_seconds) {
 	// Determine seconds
-	var frames_per_second = $scope.project.fps.num / $scope.project.fps.den;
-	return ($scope.pixelsPerSecond*(position_frames - 1) / frames_per_second);
+	var position = ($scope.pixelsPerSecond * position_seconds);
+	return position;
   }
 
   $scope.PlayCut = function(cut, event) {

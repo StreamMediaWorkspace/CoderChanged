@@ -21,7 +21,6 @@
   "playhead_position": 0,
   "profile": "HD 720p 30 fps",
   "cuts": [
-    {"id":"0", "layer" : "0", "color": "#fff000", "start": 8, "duration": 50, "end": 58, "shortCut": "ctl+x"}
 	],
   "layers": [
     {

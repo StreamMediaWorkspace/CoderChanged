@@ -149,6 +149,8 @@ MENU_COPY_KEYFRAMES_CONTRAST = 12
 
 MENU_PLAYCUTS = 15
 
+MENU_EXPORTCUTS = 16
+
 MENU_SLICE_KEEP_BOTH = 0
 MENU_SLICE_KEEP_LEFT = 1
 MENU_SLICE_KEEP_RIGHT = 2
@@ -2978,32 +2980,91 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         fps = get_app().project.get(["fps"])
         fps_num = float(fps["num"])
         fps_den = float(fps["den"])
-        #frames_per_second = fps_num / fps_den
+        frames_per_second = fps_num / fps_den
+
+        print("==------------===python=project:fps_num, fps_den", fps_num, fps_den)
         #frame_duration = fps_den / fps_num
+
+        position_seconds = (float)(position) / frames_per_second
+        print("-------position_seconds:", position_seconds)
 
         # in-between frames, and thus less likely to repeat or skip a frame).
         #current_frame = float(round((current_frame * fps_num) / fps_den ) * fps_den ) / fps_num
+
+        print("**************cuts start or end :", self.window.preview_thread.current_frame, position_seconds)
 
         # Get # of tracks
         find = False
         cutList = Cut.filter(shortCut=key)
         for cut in cutList:
-            if cut and cut.data["end"] == -1:
-                cut.data["end"] = position
-                cut.data["duration"] = position - int(cut.data["start"])
-                cut.data["video_length"] = position - int(cut.data["start"])
+            if cut and cut.data["end"] == -1:#not end cut
+                interactClip = self.getClipByPositionId(position_seconds)# get current position clip
+                if not interactClip:
+                    log.error("end cut, can not find clip by position seconds", position_seconds, cut)
+                    return
 
-                cut.save()
+                if cut.data["clip"] == interactClip.get("id"):# end and start in the same clip
+                    cut.data["end"] = position_seconds
+                    cut.data["duration"] = position_seconds - float(cut.data["start"])
+                    cut.data["video_length"] = round(cut.data["duration"] * frames_per_second)
+                    #cut.data["video_length"] = position_seconds - float(cut.data["start"])
+                    cut.save()
+                else:#start in one clip, end in another clip
+                    endClip = self.getClipEndByClipId(cut.data["clip"])
+                    if not endClip:
+                        log.error("end cut, can not find end clip by id", cut.data["clip"], cut)
+                        return
+
+                    cut.data["end"] = endClip.get("end", -1)
+                    cut.data["duration"] = float(cut.data["end"]) - float(cut.data["start"])
+                    cut.data["video_length"] = round(cut.data["duration"] * frames_per_second)
+                    #cut.data["video_length"] = position_seconds - float(cut.data["start"])
+                    cut.save()
+
+                    cut = Cut()
+                    cut.id = None
+                    cut.type = "insert"
+                    clipId = endClip.get("id", "error")
+                    clipStart = endClip.get("start", 0)
+                    cut.data = {"layer": str(id), "clip": clipId, "color": color, "start": clipStart, "end": position_seconds, "duration": 0.0, "video_length": 0, "num": fps_num, "den": fps_den, "shortCut": key}
+                    cut.save()
+                
                 find = True
 
         if not find:
             selected_layers = self.eval_js(JS_SCOPE_SELECTOR + ".GetSelectedLayers();").split(",")
+            interactClip = self.getClipByPositionId(position_seconds)
+            if not interactClip:
+                log.error("insert cut can not find clip by position", position_seconds, cut)
+                return
+
+            clipId = interactClip.get("id", "error")
+
             for id in selected_layers:
                 cut = Cut()
                 cut.id = None
                 cut.type = "insert"
-                cut.data = {"layer": str(id), "color": color, "start": position, "duration": 0.0, "shortCut": key, "end": -1}
+                cut.data = {"layer": str(id), "clip": clipId, "color": color, "start": position_seconds, "end": -1, "duration": 0.0, "video_length": 0, "num": fps_num, "den": fps_den, "shortCut": key}
                 cut.save()
+
+    def getClipByPositionId(self, position_seconds):
+        project = get_app().project
+        clips = project.get(["clips"])
+        for clip in clips:
+            print("---------getClipByPositionId:", clip.get("position", 0), clip.get("position", 0) + (clip.get("end", 0) - clip.get("start", 0)), position_seconds)
+            if clip.get("position", 0) <= position_seconds and \
+                            clip.get("position", 0) + (clip.get("end", 0) - clip.get("start", 0)) >= position_seconds:
+                return clip
+
+        return None
+    
+    def getClipEndByClipId(self, id):
+        clips = Clip.filter(id=id)
+        for clip in clips:
+            return clip.get("end", 0)
+
+        return None
+                
 
     @pyqtSlot(str)
     def update_cut_data(self, cut_json):
@@ -3050,8 +3111,16 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         #PlayCut.setShortcut(QKeySequence(self.window.getShortcutByName("pasteAll")))
         PlayCut.triggered.connect(partial(self.PlayCuts_Triggered, MENU_PLAYCUTS, float(position), cuts))
 
+        ExportCut = menu.addAction(_("Export"))
+        ExportCut.triggered.connect(partial(self.ExportCut_Triggered, MENU_EXPORTCUTS, float(position), cuts))
+
+
         return menu.popup(QCursor.pos())
 
+    def ExportCut_Triggered(self, action, position, cuts):
+       from windows.exportting import Exportting
+       export = Exportting(cuts)
+       export.show()
 
     def PlayCuts_Triggered(self, action, position, cuts):
         # show dialog
@@ -3072,14 +3141,12 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
             # File not found, do nothing
             return
 
-        '''
         if (file.data["media_type"] == "video" or file.data["media_type"] == "image"):
             # Determine thumb path
             thumb_path = os.path.join(info.THUMBNAIL_PATH, "%s.png" % file.data["id"])
         else:
             # Audio file
             thumb_path = os.path.join(info.PATH, "images", "AudioThumbnail.png")
-        '''
 
         # Get file name
         path, filename = os.path.split(file.data["path"])
@@ -3089,6 +3156,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
 
         # Create clip object for this file
         c = openshot.Clip(file_path)
+        c.display = openshot.FRAME_DISPLAY_CLIP
 
         # Append missing attributes to Clip JSON
         new_clip = json.loads(c.Json())
@@ -3137,7 +3205,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         self.item_id = new_clip.get('id')
 
         # Init javascript bounding box (for snapping support)
-        code = JS_SCOPE_SELECTOR + ".StartManualMove('" + self.item_type + "', '" + self.item_id + "');"
+        code = JS_SCOPE_SELECTOR + ".StartManualMove('clip', '" + self.item_id + "');"
         self.eval_js(code)
 
 
