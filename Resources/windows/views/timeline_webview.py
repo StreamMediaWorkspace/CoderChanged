@@ -3001,6 +3001,12 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                 interactClip = self.getClipByPositionId(position_seconds)# get current position clip
                 if not interactClip:
                     log.error("end cut, can not find clip by position seconds", position_seconds, cut)
+                    end_clip = self.getLastClip()
+                    cut.data["end"] = end_clip.get("end")
+                    cut.data["duration"] = float(cut.data["end"]) - float(cut.data["start"])
+                    cut.data["video_length"] = round(cut.data["duration"] * frames_per_second)
+                    #cut.data["video_length"] = position_seconds - float(cut.data["start"])
+                    cut.save()
                     return
 
                 if cut.data["clip"] == interactClip.get("id"):# end and start in the same clip
@@ -3013,6 +3019,12 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                     end = self.getClipEndByClipId(cut.data["clip"])
                     if not end:
                         log.error("end cut, can not find end clip by id", cut.data["clip"], cut)
+                        end_clip = self.getLastClip()
+                        cut.data["end"] = end_clip.get("end")
+                        cut.data["duration"] = float(cut.data["end"]) - float(cut.data["start"])
+                        cut.data["video_length"] = round(cut.data["duration"] * frames_per_second)
+                        #cut.data["video_length"] = position_seconds - float(cut.data["start"])
+                        cut.save()
                         return
 
                     cut.data["end"] = end
@@ -3070,6 +3082,13 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
             print("-------getClipEndByClipId:", clip.data)
             return clip.data["end"]
 
+        return None
+
+    def getLastClip(self):
+        project = get_app().project
+        clips = project.get(["clips"])
+        if len(clips)>0:
+            return clips[len(clips)-1]
         return None
                 
 
