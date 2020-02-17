@@ -3020,6 +3020,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                     cut.data["video_length"] = round(cut.data["duration"] * frames_per_second)
                     #cut.data["video_length"] = position_seconds - float(cut.data["start"])
                     cut.save()
+                    print("--------old cut", cut.data)
 
                     layerId = cut.data["layer"]
                     cut_new = Cut()
@@ -3030,7 +3031,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                     duration = position_seconds - clipStart
                     video_length = round(duration * frames_per_second)
         
-                    cut_new.data = {"layer": layerId, "clip": clipId, "color": color, "start": clipStart, "end": position_seconds, "duration": duration, "video_length": video_length, "num": fps_num, "den": fps_den, "shortCut": key}
+                    cut_new.data = {"layer": layerId, "clip": clipId, "color": color, "start": clipStart, "end": position_seconds, "position": interactClip.get("position"), "duration": duration, "video_length": video_length, "num": fps_num, "den": fps_den, "shortCut": key}
                     cut_new.save()
                     print("--------new cut", cut_new.data)
                 
@@ -3049,7 +3050,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                 cut = Cut()
                 cut.id = None
                 cut.type = "insert"
-                cut.data = {"layer": str(id), "clip": clipId, "color": color, "start": position_seconds, "end": -1, "duration": 0.0, "video_length": 0, "num": fps_num, "den": fps_den, "shortCut": key}
+                cut.data = {"layer": str(id), "clip": clipId, "color": color, "start": position_seconds, "position": interactClip.get("position"), "end": -1, "duration": 0.0, "video_length": 0, "num": fps_num, "den": fps_den, "shortCut": key}
                 cut.save()
 
     def getClipByPositionId(self, position_seconds):
@@ -3066,7 +3067,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
     def getClipEndByClipId(self, id):
         clips = Clip.filter(id=id)
         for clip in clips:
-            print("-------getClipEndByClipId:", clip.data["end"])
+            print("-------getClipEndByClipId:", clip.data)
             return clip.data["end"]
 
         return None

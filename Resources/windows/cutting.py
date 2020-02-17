@@ -63,7 +63,7 @@ def CutsToClips(cuts):
         offset = float(c[0].data["position"])
         start = float(cut["start"]) - offset
         end = float(cut["end"]) - offset
-        print("=======================-------start:", start, "end:", end, "position", position)
+        print("=======================-------start:", start, "end:", end, "position", position, path)
 
         try:
             clip = openshot.Clip(path)
