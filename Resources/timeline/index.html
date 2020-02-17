@@ -80,7 +80,7 @@
 				<!--<div ng-repeat="layer in project.layers.slice()" id="track_{{layer.id}}" ng-right-click="ShowTimelineMenu($event, layer.number)" class="{{GetTrackStyle(layer.lock)}}" style="width:{{GetTimelineWidth(1024)}}px;">-->
 				<div ng-repeat="layer in project.layers.slice()" id="track_{{layer.id}}" class="{{GetTrackStyle(layer.lock)}}" style="width:{{GetTimelineWidth(1024)}}px;">
 					<!-- CUTS -->
-					<div ng-repeat="cut in project.cuts.slice() | filter:{layer: layer.id}" ng-right-click="ShowCutMenu(cut, $event)" id="cut_{{cut.id}}" ng-dblclick="PlayCut(cut, $event)" style="background-color:{{cut.color}}; left:{{GetPositionBySeconds(cut.start)}}px; width:{{GetPositionBySeconds(cut.duration)+3}}px;" class="cut">
+					<div ng-repeat="cut in project.cuts.slice() | filter:{layer: layer.id}" ng-right-click="ShowCutMenu(cut, $event)" id="cut_{{cut.id}}" ng-dblclick="PlayCut(cut, $event)" style="background-color:{{cut.color}}; left:{{GetPositionBySeconds(cut.start)+3}}px; width:{{GetPositionBySeconds(cut.duration)}}px;" class="cut">
 					</div>
 				</div>
 			</div>
