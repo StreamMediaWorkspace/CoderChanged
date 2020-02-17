@@ -3010,24 +3010,29 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                     #cut.data["video_length"] = position_seconds - float(cut.data["start"])
                     cut.save()
                 else:#start in one clip, end in another clip
-                    endClip = self.getClipEndByClipId(cut.data["clip"])
-                    if not endClip:
+                    end = self.getClipEndByClipId(cut.data["clip"])
+                    if not end:
                         log.error("end cut, can not find end clip by id", cut.data["clip"], cut)
                         return
 
-                    cut.data["end"] = endClip.get("end", -1)
+                    cut.data["end"] = end
                     cut.data["duration"] = float(cut.data["end"]) - float(cut.data["start"])
                     cut.data["video_length"] = round(cut.data["duration"] * frames_per_second)
                     #cut.data["video_length"] = position_seconds - float(cut.data["start"])
                     cut.save()
 
-                    cut = Cut()
-                    cut.id = None
-                    cut.type = "insert"
-                    clipId = endClip.get("id", "error")
-                    clipStart = endClip.get("start", 0)
-                    cut.data = {"layer": str(id), "clip": clipId, "color": color, "start": clipStart, "end": position_seconds, "duration": 0.0, "video_length": 0, "num": fps_num, "den": fps_den, "shortCut": key}
-                    cut.save()
+                    layerId = cut.data["layer"]
+                    cut_new = Cut()
+                    cut_new.id = None
+                    cut_new.type = "insert"
+                    clipId = interactClip.get("id")
+                    clipStart = interactClip.get("start", 0)
+                    duration = position_seconds - clipStart
+                    video_length = round(duration * frames_per_second)
+        
+                    cut_new.data = {"layer": layerId, "clip": clipId, "color": color, "start": clipStart, "end": position_seconds, "duration": duration, "video_length": video_length, "num": fps_num, "den": fps_den, "shortCut": key}
+                    cut_new.save()
+                    print("--------new cut", cut_new.data)
                 
                 find = True
 
@@ -3061,7 +3066,8 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
     def getClipEndByClipId(self, id):
         clips = Clip.filter(id=id)
         for clip in clips:
-            return clip.get("end", 0)
+            print("-------getClipEndByClipId:", clip.data["end"])
+            return clip.data["end"]
 
         return None
                 
