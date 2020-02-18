@@ -3016,7 +3016,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                     #cut.data["video_length"] = position_seconds - float(cut.data["start"])
                     cut.save()
                 else:#start in one clip, end in another clip
-                    end = self.getClipEndByClipId(cut.data["clip"])
+                    end = self.getClipByClipId(cut.data["clip"])
                     if not end:
                         log.error("end cut, can not find end clip by id", cut.data["clip"], cut)
                         end_clip = self.getLastClip()
@@ -3027,7 +3027,7 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
                         cut.save()
                         return
 
-                    cut.data["end"] = end
+                    cut.data["end"] = end.data["end"]# - end.data["position"]
                     cut.data["duration"] = float(cut.data["end"]) - float(cut.data["start"])
                     cut.data["video_length"] = round(cut.data["duration"] * frames_per_second)
                     #cut.data["video_length"] = position_seconds - float(cut.data["start"])
@@ -3076,24 +3076,30 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
 
         return None
     
-    def getClipEndByClipId(self, id):
+    def getClipByClipId(self, id):
         clips = Clip.filter(id=id)
         for clip in clips:
             print("-------getClipEndByClipId:", clip.data)
-            return clip.data["end"]
+            return clip
 
         return None
 
     def getLastClip(self):
         project = get_app().project
         clips = project.get(["clips"])
-        if len(clips)>0:
-            return clips[len(clips)-1]
-        return None
+        lastClip = None
+        end = 0.0
+        for clip in clips:
+            if end < clip.get("end"):
+               lastClip = clip
+               end = clip.get("end")
+            
+        return lastClip
                 
 
     @pyqtSlot(str)
     def update_cut_data(self, cut_json):
+        log.info("update_cut_data: %s", cut_json)
         # read cut json
         try:
             if not isinstance(cut_json, dict):
@@ -3110,27 +3116,27 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         if existing_cut:
             existing_cut.data["num"] = cut_data["num"]
             existing_cut.data["den"] = cut_data["den"]
-            existing_cut.data["start_seconds"] = cut_data["start_seconds"]
-            existing_cut.data["end_seconds"] = cut_data["end_seconds"]
-            existing_cut.data["duration_seconds"] = cut_data["duration_seconds"]
+            #existing_cut.data["start_seconds"] = cut_data["start_seconds"]
+            #existing_cut.data["end_seconds"] = cut_data["end_seconds"]
+            #existing_cut.data["duration_seconds"] = cut_data["duration_seconds"]
             existing_cut.save()
 
     @pyqtSlot(float, str)
-    def ShowCutMenu(self, position, cut_json):
-        log.info('ShowCutMenu: position: %s, cut: %s' % (position, cut_json))
+    def ShowCutMenu(self, position, cuts_json):
+        log.info('ShowCutMenu: position: %s, cut: %s' % (position, cuts_json))
 
         # Get translation method
         _ = get_app()._tr
 
         cuts = []
         try:
-            if not isinstance(cut_json, dict):
-                cuts = json.loads(cut_json)
+            if not isinstance(cuts_json, dict):
+                cuts = json.loads(cuts_json)
             else:
-                cuts = cut_json
+                cuts = cuts_json
         except:
             # Failed to parse json, do nothing
-            log.error("update_clip_data error %s", cut_json)
+            log.error("ShowCutMenu error %s", cuts_json)
 
         menu = QMenu(self)
         PlayCut = menu.addAction(_("Preview"))
@@ -3293,3 +3299,31 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
 
         # Delay the start of cache rendering
         QTimer.singleShot(1500, self.cache_renderer.start)
+ 
+    @pyqtSlot(float, str, str)
+    def ShowLayerMenu(self, position, layer_id, cuts_json):
+        log.info('ShowLayerMenu: position: %s, layer_id %s, cut: %s' % (position, layer_id, cuts_json))
+        print("==============ShowLayerMenu", cuts_json)
+        # Get translation method
+        _ = get_app()._tr
+
+        cuts = []
+        try:
+            if not isinstance(cuts_json, dict):
+                cuts = json.loads(cuts_json)
+            else:
+                cuts = cuts_json
+        except:
+            # Failed to parse json, do nothing
+            log.error("ShowLayerMenu error %s", cuts_json)
+
+        menu = QMenu(self)
+        PlayCut = menu.addAction(_("Preview"))
+        #PlayCut.setShortcut(QKeySequence(self.window.getShortcutByName("pasteAll")))
+        PlayCut.triggered.connect(partial(self.PlayCuts_Triggered, MENU_PLAYCUTS, float(position), cuts))
+
+        ExportCut = menu.addAction(_("Export"))
+        ExportCut.triggered.connect(partial(self.ExportCut_Triggered, MENU_EXPORTCUTS, float(position), cuts))
+
+
+        return menu.popup(QCursor.pos())

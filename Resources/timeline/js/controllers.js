@@ -175,7 +175,7 @@ App.controller('TimelineCtrl',function($scope) {
                    //
 				   //  ],
 		cuts: [
-					{id:'0', layer : '0', color: '#fff000', start: 8, duration: 2, end: 10, shortCut: 'ctl+x'},
+					//{id:'0', layer : '0', color: '#fff000', start: 8, duration: 2, end: 10, shortCut: 'ctl+x'},
 					//{id:'1', layer : '1', color: '#000fff', start: 30, duration: 10, end: 40.0, shortCut: 'ctl+x'},
 			],
 	  	layers : [
@@ -1599,13 +1599,39 @@ $scope.SetTrackLabel = function (label) {
 
   $scope.ShowCutMenu = function(cut, event) {
 	var posX = parseFloat($scope.GetJavaScriptPosition(event.pageX));
-	var cuts_json = '[' + JSON.stringify(cut) + ']'
+	var cuts_json = '[' + JSON.stringify(cut) + ']';
 	
 	if ($scope.Qt) {
 		timeline.qt_log("$scope.ShowCutMenu");
 		timeline.ShowCutMenu(posX, cuts_json);
 	} else {
-		console.log("ShowCutMenu "+posX+","+cuts_json);
+		console.log("ShowCutMenu " + posX + "," + uts_json);
 	}
   };
+
+  $scope.ShowLayerMenu = function(layer, event) {
+	var posX = parseFloat($scope.GetJavaScriptPosition(event.pageX));
+	var cuts = $scope.GetCutsByLayer(layer.id);
+	var cuts_json = JSON.stringify(cuts);
+	
+	if ($scope.Qt) {
+		timeline.qt_log("$scope.ShowLayerMenu");
+		timeline.ShowLayerMenu(posX, layer.id, cuts_json);
+	} else {
+		console.log("ShowLayerMenu " + posX + "," + layer + "," + cuts_json);
+	}
+  };
+
+  $scope.GetCutsByLayer = function(layer_id) {
+	timeline.qt_log("------GetCutsByLayer layer_id="+layer_id+",len="+$scope.project.cuts.length);
+	var cuts = [];
+	for (var i=0; $scope.project.cuts && i<$scope.project.cuts.length; i++) {
+		var cut = $scope.project.cuts[i];
+		if (cut && cut.layer == layer_id) {
+            cuts.push(cut);
+		}
+	}
+	return cuts;
+  };
+
 });
