@@ -38,7 +38,7 @@ class CoderWebView(QWebView):
             return self.page().mainFrame().evaluateJavaScript(code)
 
     def setup_js_data(self):
-        print("=========coder webview====setup_js_data====")
+        #print("=========coder webview====setup_js_data====")
         # Export self as a javascript object in webview
         self.page().mainFrame().addToJavaScriptWindowObject('coderview', self)
         self.page().mainFrame().addToJavaScriptWindowObject('mainWindow', self.window)

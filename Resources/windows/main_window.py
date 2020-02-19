@@ -573,7 +573,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
                 return
 
         # Prompt for open project file
-        file_path, file_type = QFileDialog.getOpenFileName(self, _("Open Project..."), recommended_path, _("OpenShot Project (*.osp)"))
+        file_path, file_type = QFileDialog.getOpenFileName(self, _("Open Project..."), recommended_path, _("Project (*.osp)"))
 
         # Load project file
         self.OpenProjectSignal.emit(file_path)
@@ -586,7 +586,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         file_path = app.project.current_filepath
         if not file_path:
             recommended_path = os.path.join(info.HOME_PATH, "%s.osp" % _("Untitled Project"))
-            file_path, file_type = QFileDialog.getSaveFileName(self, _("Save Project..."), recommended_path, _("OpenShot Project (*.osp)"))
+            file_path, file_type = QFileDialog.getSaveFileName(self, _("Save Project..."), recommended_path, _("Project (*.osp)"))
 
         if file_path:
             # Append .osp if needed
@@ -1841,6 +1841,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
                 self.dockTransitions,
                 self.dockEffects,
                 self.dockVideo,
+                self.dockCoder,
                 self.dockProperties,
                 self.dockTimeline]
 
@@ -1886,31 +1887,32 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         self.removeDocks()
 
         # Add Docks
-        self.addDocks([self.dockFiles, self.dockTransitions, self.dockEffects, self.dockVideo], Qt.TopDockWidgetArea)
+        self.addDocks([self.dockVideo, self.dockCoder], Qt.TopDockWidgetArea)
+        #self.addDocks([self.dockFiles, self.dockTransitions, self.dockEffects, self.dockVideo, self.dockCoder], Qt.TopDockWidgetArea)
 
         self.floatDocks(False)
-        self.tabifyDockWidget(self.dockFiles, self.dockTransitions)
-        self.tabifyDockWidget(self.dockTransitions, self.dockEffects)
-        self.showDocks([self.dockFiles, self.dockTransitions, self.dockEffects, self.dockVideo])
+        #self.tabifyDockWidget(self.dockFiles, self.dockTransitions)
+        #self.tabifyDockWidget(self.dockTransitions, self.dockEffects)
+        self.showDocks([self.dockVideo, self.dockCoder])
+        #self.showDocks([self.dockFiles, self.dockTransitions, self.dockEffects, self.dockVideo, self.dockCoder])
 
         # Set initial size of docks
         simple_state = "AAAA/wAAAAD9AAAAAwAAAAAAAAEnAAAC3/wCAAAAAvwAAAJeAAAApwAAAAAA////+gAAAAACAAAAAfsAAAAYAGQAbwBjAGsASwBlAHkAZgByAGEAbQBlAAAAAAD/////AAAAAAAAAAD7AAAAHABkAG8AYwBrAFAAcgBvAHAAZQByAHQAaQBlAHMAAAAAJwAAAt8AAACnAP///wAAAAEAAAEcAAABQPwCAAAAAfsAAAAYAGQAbwBjAGsASwBlAHkAZgByAGEAbQBlAQAAAVgAAAAVAAAAAAAAAAAAAAACAAAERgAAAtj8AQAAAAH8AAAAAAAABEYAAAD6AP////wCAAAAAvwAAAAnAAABwAAAALQA/////AEAAAAC/AAAAAAAAAFcAAAAewD////6AAAAAAIAAAAD+wAAABIAZABvAGMAawBGAGkAbABlAHMBAAAAAP////8AAACYAP////sAAAAeAGQAbwBjAGsAVAByAGEAbgBzAGkAdABpAG8AbgBzAQAAAAD/////AAAAmAD////7AAAAFgBkAG8AYwBrAEUAZgBmAGUAYwB0AHMBAAAAAP////8AAACYAP////sAAAASAGQAbwBjAGsAVgBpAGQAZQBvAQAAAWIAAALkAAAARwD////7AAAAGABkAG8AYwBrAFQAaQBtAGUAbABpAG4AZQEAAAHtAAABEgAAAJYA////AAAERgAAAAEAAAABAAAAAgAAAAEAAAAC/AAAAAEAAAACAAAAAQAAAA4AdABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAA"
         self.restoreState(qt_types.str_to_bytes(simple_state))
         QCoreApplication.processEvents()
 
-
     def actionAdvanced_View_trigger(self, event):
         """ Switch to an alternative view """
         self.removeDocks()
 
         # Add Docks
-        self.addDocks([self.dockFiles, self.dockTransitions, self.dockVideo], Qt.TopDockWidgetArea)
+        self.addDocks([self.dockFiles, self.dockTransitions, self.dockVideo, self.dockCoder], Qt.TopDockWidgetArea)
         self.addDocks([self.dockEffects], Qt.RightDockWidgetArea)
         self.addDocks([self.dockProperties], Qt.LeftDockWidgetArea)
 
         self.floatDocks(False)
         self.tabifyDockWidget(self.dockTransitions, self.dockEffects)
-        self.showDocks([self.dockFiles, self.dockTransitions, self.dockVideo, self.dockEffects, self.dockProperties])
+        self.showDocks([self.dockFiles, self.dockTransitions, self.dockVideo, self.dockCoder, self.dockEffects, self.dockProperties])
 
         # Set initial size of docks
         advanced_state = "AAAA/wAAAAD9AAAAAwAAAAAAAACCAAAC3/wCAAAAAvsAAAASAGQAbwBjAGsARgBpAGwAZQBzAQAAACcAAALfAAAAmAD////8AAACXgAAAKcAAAAAAP////oAAAAAAgAAAAH7AAAAGABkAG8AYwBrAEsAZQB5AGYAcgBhAG0AZQAAAAAA/////wAAAAAAAAAAAAAAAQAAANUAAALf/AIAAAAC+wAAABwAZABvAGMAawBQAHIAbwBwAGUAcgB0AGkAZQBzAQAAACcAAALfAAAAnwD////7AAAAGABkAG8AYwBrAEsAZQB5AGYAcgBhAG0AZQEAAAFYAAAAFQAAAAAAAAAAAAAAAgAAAuMAAALY/AEAAAAB/AAAAIgAAALjAAABWgD////8AgAAAAL8AAAAJwAAAe8AAACYAP////wBAAAAAvsAAAAeAGQAbwBjAGsAVAByAGEAbgBzAGkAdABpAG8AbgBzAQAAAIgAAACKAAAAbAD////7AAAAEgBkAG8AYwBrAFYAaQBkAGUAbwEAAAEYAAACUwAAAEcA/////AAAAhwAAADjAAAAmAD////8AQAAAAL7AAAAGABkAG8AYwBrAFQAaQBtAGUAbABpAG4AZQEAAACIAAACUgAAAPoA////+wAAABYAZABvAGMAawBFAGYAZgBlAGMAdABzAQAAAuAAAACLAAAAWgD///8AAALjAAAAAQAAAAEAAAACAAAAAQAAAAL8AAAAAQAAAAIAAAABAAAADgB0AG8AbwBsAEIAYQByAQAAAAD/////AAAAAAAAAAA="
@@ -2503,7 +2505,7 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
 
         #Setup coder page #==========yanght
         self.coderWebView = CoderWebView(self)
-        self.tabTransitions.layout().addWidget(self.coderWebView)
+        self.tabCoder.layout().insertWidget(0, self.coderWebView)
 
         # Load window state and geometry
         self.load_settings()
@@ -2574,6 +2576,8 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         # Refresh frame
         QTimer.singleShot(100, self.refreshFrameSignal.emit)
 
+        self.hideFileDock()
+
         # Main window is initialized
         self.initialized = True
 
@@ -2581,3 +2585,9 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         """ Get a key sequence back from the setting name """
         s = settings.get_settings()
         return s.get(setting_name)
+
+    def hideFileDock(self):
+        self.dockFiles.hide()
+        self.dockTransitions.hide()
+        self.dockEffects.hide()
+        self.dockProperties.hide()
