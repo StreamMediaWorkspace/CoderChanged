@@ -63,6 +63,8 @@ from windows.views.tutorial import TutorialManager
 from windows.video_widget import VideoWidget
 from windows.preview_thread import PreviewParent
 
+from windows.views.coder_webview import CoderWebView
+
 
 class MainWindow(QMainWindow, updates.UpdateWatcher):
     """ This class contains the logic for the main window widget """
@@ -2498,6 +2500,10 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         # Setup video preview QWidget
         self.videoPreview = VideoWidget()
         self.tabVideo.layout().insertWidget(0, self.videoPreview)
+
+        #Setup coder page #==========yanght
+        self.coderWebView = CoderWebView(self)
+        self.tabTransitions.layout().addWidget(self.coderWebView)
 
         # Load window state and geometry
         self.load_settings()
