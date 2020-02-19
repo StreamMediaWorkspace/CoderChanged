@@ -77,7 +77,6 @@ class CoderWebView(QWebView):
         QWebView.__init__(self)
         self.window = window
         #self.setAcceptDrops(True)
-        #self.setAcceptDrops()
 
         # Get settings
         self.settings_obj = settings.get_settings()

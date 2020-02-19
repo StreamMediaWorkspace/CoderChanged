@@ -4,7 +4,7 @@
     <title>Network | Multifont Labels</title>
     <script type="text/javascript" src="./js/vis.min.js"></script>
     <link href="./css/vis-network.min.css" rel="stylesheet" type="text/css" />
-    <style type="text/css">#mynetwork { width: 100%; height: 90%; border: 1px solid lightgray; } code { font-size: 15px; } p { max-width: 600px; } .indented { margin-left: 30px; } table { border-collapse: collapse; font-family: sans-serif; } table code { background: #dddddd; } th, td { border: 1px solid #aaaaaa; text-align: center; padding: 5px; font-weight: normal; }</style></head>
+    <style type="text/css">#mynetwork { width: 100%; height: 100%; border: 1px solid lightgray; } code { font-size: 15px; } p { max-width: 600px; } .indented { margin-left: 30px; } table { border-collapse: collapse; font-family: sans-serif; } table code { background: #dddddd; } th, td { border: 1px solid #aaaaaa; text-align: center; padding: 5px; font-weight: normal; }</style></head>
   
   <body>
     <input type="button" style="width:80px;height:30px;" draggable="true" ondragstart="drag(event)" value="drag"></input>
@@ -46,6 +46,8 @@
         },
         nodes: {
           shape: 'box',
+          borderWidth: 2,//节点边框宽度设置
+          borderWidthSelected: 4,
           font: {
             bold: {
               color: '#0077aa'
@@ -88,29 +90,33 @@
         document.getElementById('eventSpan').innerHTML = '<h2>doubleClick event:</h2>' + JSON.stringify(params, null, 4);
       });
 
-      //for drag
-      function allowDrop(ev) {
-        //coderview.qt_log("=======allowDrop========");
-        ev.preventDefault();
-      }
+    //for drag
+    function allowDrop(ev) {
+      //coderview.qt_log("=======allowDrop========");
+      ev.preventDefault();
+    }
 
     function drag(ev) {
-        ev.dataTransfer.setData("width", ev.target.style.width);
-		    ev.dataTransfer.setData("height", ev.target.style.height);
+        ev.dataTransfer.setData("x", ev.offsetX);
+		    ev.dataTransfer.setData("y", ev.offsetY);
     }
 
     function drop(e) {
-        //ev.preventDefault();
+        e.preventDefault();
         //var data=ev.dataTransfer.getData("Text");
         //ev.target.appendChild(document.getElementById(data));
-		
-		    var w = e.dataTransfer.getData("width");
-		    var h = e.dataTransfer.getData("height");
-		
+
+        
         var evt = e || event;
-		
-		    var left = 0;//evt.clientX - e.target.width / 2 - parseInt(w) / 2;
-        var top = 0;//evt.clientY - e.target.width / 2;// + parseInt(h) / 2;
+
+        width = document.getElementById("mynetwork").offsetWidth;
+        height = document.getElementById("mynetwork").offsetWidth;
+        
+        
+		    var left = evt.offsetX - e.dataTransfer.getData("x") - width / 2;
+        var top = evt.offsetY - e.dataTransfer.getData("y") - height / 2 + 10;
+
+        //coderview.qt_log("=======allowDrop========"+left+","+top);
 		
         addNode(left, top);
     }
