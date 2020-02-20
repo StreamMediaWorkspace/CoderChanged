@@ -65,7 +65,7 @@
 		<div id="track_controls">
 			<div ng-repeat="layer in project.layers.slice()" ng-right-click="ShowLayerMenu(layer, $event)" id="track_static_index_{{layer.id}}" class="track_id" ng-click="OnSelectLayer($event, layer.id)">
 				<div class="track_top">
-					<span class="div_selected" style="display: none;" id="track_select_{{layer.id}}"></span>
+					<span class="div_no_selected" id="track_select_{{layer.id}}"></span>
 					<span class="track_label">{{$index+1}}</span>
 					<span ng-show="layer.lock" class="track_lock"></span>
 					<span class="track_label_name">{{GetLayerNameByNodeId(layer.node)}}</span>

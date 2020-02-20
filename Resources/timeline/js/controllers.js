@@ -1527,8 +1527,6 @@ $scope.SetTrackLabel = function (label) {
   };
 
   $scope.MoveCuts = function(current_frame) {
-	//var frames_per_second = $scope.project.fps.num / $scope.project.fps.den;
-  
 	  var scope = $scope;
 	  for (var i=0; scope.project.cuts && i<scope.project.cuts.length; i++) {
 		  var cut = scope.project.cuts[i];
@@ -1537,20 +1535,6 @@ $scope.SetTrackLabel = function (label) {
 				  cut.duration = current_frame - cut.start;
 			  } else {
 				  cut.duration = cut.end - cut.start;
-				  // update cut in Qt (very important =)
-				  if ($scope.Qt && !cut.num ) {
-					  //cut.num = $scope.project.fps.num;
-					  //cut.den = $scope.project.fps.den;
-
-					  //cut.video_length = cut.end - cut.start;
-
-					  //seconds yanght
-					  //cut.start_seconds = toDecimal(((cut.start - 1) / frames_per_second));
-					  //cut.end_seconds = toDecimal((cut.end / frames_per_second));
-					  //cut.duration_seconds = toDecimal((cut.duration / frames_per_second));
-				  
-					  //timeline.update_cut_data(JSON.stringify(cut));
-				  }
 			  }
 		  }
 	  }
@@ -1590,10 +1574,14 @@ $scope.SetTrackLabel = function (label) {
 	var index = selected_layers.indexOf(layer_id);
 	if (index == -1){
 		selected_layers.push(layer_id);
-		$('#track_select_'+layer_id).show()
+		$('#track_select_'+layer_id).addClass("div_selected");//.show()
+		$('#track_select_'+layer_id).removeClass("div_no_selected");//.show()
+		
 	} else {
 		selected_layers.splice(index, 1);
-		$('#track_select_'+layer_id).hide()
+		$('#track_select_'+layer_id).addClass("div_no_selected");//.show()
+		$('#track_select_'+layer_id).removeClass("div_selected");
+		//$('#track_select_'+layer_id).hide()
 	}
   };
 
