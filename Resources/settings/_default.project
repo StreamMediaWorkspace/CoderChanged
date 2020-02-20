@@ -26,13 +26,13 @@
       {"id": "0", "text": "node1", "x": -80, "y": -120, "depth": 0, "color": "#ff0000"},
       {"id": "1", "text": "node2", "x": -80, "y": 0, "depth": 0, "color": "#00ff00"},
 
-      {"id": "3", "text": "prop1", "x": 20, "y": -80, "depth": 1, "color": "#00ffff"},
-      {"id": "4", "text": "prop2", "x": 20, "y": 80, "depth": 1, "color": "#fdddd3"}
+      {"id": "2", "text": "prop1", "x": 20, "y": -80, "depth": 1, "color": "#00ffff"},
+      {"id": "3", "text": "prop2", "x": 20, "y": 80, "depth": 1, "color": "#fdddd3"}
     ],
     "edges" : [
-      {"id": "1000", "from": 0, "to": 3},
-      {"id": "1001", "from": 0, "to": 4},
-      {"id": "1002", "from": 1, "to": 4}
+      {"id": "1000", "from": 0, "to": 2},
+      {"id": "1001", "from": 0, "to": 3},
+      {"id": "1002", "from": 1, "to": 3}
     ]
   },
   "layers": [

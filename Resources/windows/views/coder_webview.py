@@ -21,8 +21,7 @@ try:
 except ImportError:
     import simplejson as json
 
-class CoderWebView(QWebView):
-
+class CoderWebView(QWebView, updates.UpdateInterface):
     # Path to html file
     html_path = os.path.join(info.PATH, 'coderview', 'index.html')
 
@@ -100,13 +99,30 @@ class CoderWebView(QWebView):
         n = json.loads(n)
         node = {"id": n["id"], "text": n["text"], "x": n["x"], "y": n["y"], "depth": 0, "color": n["color"]}
         nodes.append(node)
-        print("=======", node)
+        print("=======", nodes)
+    
+    @pyqtSlot(str)
+    def onNodeUpdate(self, n):
+        project = get_app().project
+        coder = project.get(["coder"])
+        nodes = coder["nodes"]
+        n = json.loads(n)
+        for node in nodes:
+            if node["id"] == n["id"]:
+                node["x"] = n["x"]
+                node["y"] = n["y"]
+        print("====onNodeUpdate===", nodes)
+
+    @pyqtSlot(str)
+    def onNodeDoubleClicked(self, nodeId):
+        print("=====onNodeDoubleClicked====", nodeId)
+        return
 
     def __init__(self, window):
         QWebView.__init__(self)
         self.document_is_ready = False
         self.window = window
-        #self.setAcceptDrops(True)
+        self.setAcceptDrops(True)
 
         # Get settings
         self.settings_obj = settings.get_settings()

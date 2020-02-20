@@ -82,17 +82,10 @@
           borderWidthSelected: 2,//节点被选中时边框的宽度，单位为px
           color: {
             border: '#2B7CE9',//节点边框颜色
-            background: '#97C2FC',//节点背景颜色
+            //background: '#97C2FC',//节点背景颜色
             highlight: {//节点选中时状态颜色
               border: '#2B7CE9',
               background: '#D2E5FF'
-            },
-            font: {//字体配置
-              color: '#343434',//颜色
-              size: 14, // 大小，单位px
-              face: 'arial',//字体
-              background: 'none',//背景
-              align: 'center',//位置left right center
             },
             hover: {//节点鼠标滑过时状态颜色
               border: '#2B7CE9',
@@ -116,6 +109,27 @@
       network.on("doubleClick", function(params) {
         params.event = "[original event]";
         document.getElementById('eventSpan').innerHTML = '<h2>doubleClick event:</h2>' + JSON.stringify(params, null, 4);
+        log("doubleclick:"+JSON.stringify(params))
+        if (Qt && params) {
+          nodes = params.nodes;
+          for (var i=0; i<nodes.length; i++) {
+            coderview.onNodeDoubleClicked(nodes[i]);
+          }
+        }
+      });
+
+      network.on("dragEnd", function (params) {
+        if (params) {
+          nodes = params.nodes;
+          x = params.pointer.canvas.x;
+          y = params.pointer.canvas.y;
+          for (var i=0; i<nodes.length; i++) {
+            node = {id: nodes[i], x: x, y: y};
+            if (Qt) {
+              coderview.onNodeUpdate(JSON.stringify(node));
+            }
+          }
+        }
       });
 
       //for drag
@@ -144,7 +158,7 @@
         var top = evt.clientY - evt.dataTransfer.getData("y") - height / 2;
       
         var id = network.body.data.nodes.length + 1;
-        node = {id: ""+id, text: "hello", x: left, y: top, depth: 0, color: "00fff0"};
+        node = {id: ""+id, text: "hello", x: left, y: top, depth: 0, color: "00ffff"};
         node_json = JSON.stringify(node);
         addNode(node_json);
         if (Qt) {
@@ -166,9 +180,9 @@
           log("=======addNode========"+node);
           node = JSON.parse(node)
           if (node.depth == 0) {
-            network.body.data.nodes.add([{ id: node.id, font: { multi: 'html', size: 18 }, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: node.color}]);
+            network.body.data.nodes.add([{ id: node.id, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: node.color}]);
           } else {
-            network.body.data.nodes.add([{ id: node.id, font: { multi: true}, label: node.text, x: node.x, y: node.y, color: node.color}]);
+            network.body.data.nodes.add([{ id: node.id, label: node.text, x: node.x, y: node.y, color: node.color}]);
           }
         } catch(err) {
           log("=======js error:========" + err);
