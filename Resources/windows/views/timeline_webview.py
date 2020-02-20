@@ -3317,6 +3317,8 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
             # Failed to parse json, do nothing
             log.error("ShowLayerMenu error %s", cuts_json)
 
+        cuts.sort(key = lambda x:x["start"])
+
         menu = QMenu(self)
         PlayCut = menu.addAction(_("Preview"))
         #PlayCut.setShortcut(QKeySequence(self.window.getShortcutByName("pasteAll")))
