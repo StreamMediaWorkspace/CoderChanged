@@ -116,7 +116,24 @@ class CoderWebView(QWebView, updates.UpdateInterface):
     @pyqtSlot(str)
     def onNodeDoubleClicked(self, nodeId):
         print("=====onNodeDoubleClicked====", nodeId)
+        self.getSelectedNodes()
         return
+
+    def getSelectedNodes(self):
+        selected_nodes = []
+        node_json = self.eval_js("getSelectedCoder();")
+        project = get_app().project
+        coder = project.get(["coder"])
+        nodes = coder["nodes"]
+        ids = json.loads(node_json)
+        print("0--------", ids)
+        for id in ids:
+            for node in nodes:
+                if node["id"] == id and node["depth"] == 0:
+                    selected_nodes.append(node)
+                    break
+        print("====getSelectedNodes===", selected_nodes)
+        return selected_nodes
 
     def __init__(self, window):
         QWebView.__init__(self)
