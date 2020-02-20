@@ -3128,24 +3128,15 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
         # Get translation method
         _ = get_app()._tr
 
-        cuts = []
-        try:
-            if not isinstance(cuts_json, dict):
-                cuts = json.loads(cuts_json)
-            else:
-                cuts = cuts_json
-        except:
-            # Failed to parse json, do nothing
-            log.error("ShowCutMenu error %s", cuts_json)
+        cuts = self.cutsToJson(cuts_json)
 
         menu = QMenu(self)
         PlayCut = menu.addAction(_("Preview"))
         #PlayCut.setShortcut(QKeySequence(self.window.getShortcutByName("pasteAll")))
         PlayCut.triggered.connect(partial(self.PlayCuts_Triggered, MENU_PLAYCUTS, float(position), cuts))
 
-        ExportCut = menu.addAction(_("Export"))
+        ExportCut = menu.addAction(_("导出"))
         ExportCut.triggered.connect(partial(self.ExportCut_Triggered, MENU_EXPORTCUTS, float(position), cuts))
-
 
         return menu.popup(QCursor.pos())
 
@@ -3299,14 +3290,8 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
 
         # Delay the start of cache rendering
         QTimer.singleShot(1500, self.cache_renderer.start)
- 
-    @pyqtSlot(float, str, str)
-    def ShowLayerMenu(self, position, layer_id, cuts_json):
-        log.info('ShowLayerMenu: position: %s, layer_id %s, cut: %s' % (position, layer_id, cuts_json))
-        print("==============ShowLayerMenu", cuts_json)
-        # Get translation method
-        _ = get_app()._tr
 
+    def cutsToJson(self, cuts_json):
         cuts = []
         try:
             if not isinstance(cuts_json, dict):
@@ -3318,13 +3303,23 @@ class TimelineWebView(QWebView, updates.UpdateInterface):
             log.error("ShowLayerMenu error %s", cuts_json)
 
         cuts.sort(key = lambda x:x["start"])
+        return cuts
+ 
+    @pyqtSlot(float, str, str)
+    def ShowLayerMenu(self, position, layer_id, cuts_json):
+        log.info('ShowLayerMenu: position: %s, layer_id %s, cut: %s' % (position, layer_id, cuts_json))
+        print("==============ShowLayerMenu", cuts_json)
+        # Get translation method
+        _ = get_app()._tr
+
+        cuts = self.cutsToJson(cuts_json)
 
         menu = QMenu(self)
         PlayCut = menu.addAction(_("Preview"))
         #PlayCut.setShortcut(QKeySequence(self.window.getShortcutByName("pasteAll")))
         PlayCut.triggered.connect(partial(self.PlayCuts_Triggered, MENU_PLAYCUTS, float(position), cuts))
 
-        ExportCut = menu.addAction(_("Export"))
+        ExportCut = menu.addAction(_("导出"))
         ExportCut.triggered.connect(partial(self.ExportCut_Triggered, MENU_EXPORTCUTS, float(position), cuts))
 
 
