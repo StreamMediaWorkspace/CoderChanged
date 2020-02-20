@@ -92,6 +92,16 @@ class CoderWebView(QWebView):
             get_app().window.sliderZoom.setValue(secondsToZoom(initial_scale))
         '''
 
+    @pyqtSlot(str)
+    def onNodeAdded(self, n):
+        project = get_app().project
+        coder = project.get(["coder"])
+        nodes = coder["nodes"]
+        n = json.loads(n)
+        node = {"id": n["id"], "text": n["text"], "x": n["x"], "y": n["y"], "depth": 0, "color": n["color"]}
+        nodes.append(node)
+        print("=======", node)
+
     def __init__(self, window):
         QWebView.__init__(self)
         self.document_is_ready = False

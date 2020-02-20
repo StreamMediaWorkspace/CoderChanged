@@ -144,8 +144,12 @@
         var top = evt.clientY - evt.dataTransfer.getData("y") - height / 2;
       
         var id = network.body.data.nodes.length + 1;
-        node = {id: ""+id, text: "hello", x: left, y: top, depth: 0};
-	      addNode(JSON.stringify(node));
+        node = {id: ""+id, text: "hello", x: left, y: top, depth: 0, color: "00fff0"};
+        node_json = JSON.stringify(node);
+        addNode(node_json);
+        if (Qt) {
+          coderview.onNodeAdded(node_json);
+        }
       }
 	
       function log(message) {
@@ -162,9 +166,9 @@
           log("=======addNode========"+node);
           node = JSON.parse(node)
           if (node.depth == 0) {
-            network.body.data.nodes.add([{ id: node.id, font: { multi: 'html', size: 18 }, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: 'rgb(255,168,7)'}]);
+            network.body.data.nodes.add([{ id: node.id, font: { multi: 'html', size: 18 }, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: node.color}]);
           } else {
-            network.body.data.nodes.add([{ id: node.id, font: { multi: true}, label: node.text, x: node.x, y: node.y, color: 'rgb(255,168,7)'}]);
+            network.body.data.nodes.add([{ id: node.id, font: { multi: true}, label: node.text, x: node.x, y: node.y, color: node.color}]);
           }
         } catch(err) {
           log("=======js error:========" + err);
