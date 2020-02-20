@@ -1634,4 +1634,14 @@ $scope.SetTrackLabel = function (label) {
 	return cuts;
   };
 
+  $scope.GetLayerNameByNodeId = function(node_id) {
+	for (var i=0; $scope.project.coder && i<$scope.project.coder.nodes.length; i++) {
+		var node = $scope.project.coder.nodes[i];
+		if (node && node.id == node_id) {
+            return node.text;
+		}
+	}
+	return ""
+  }
+
 });

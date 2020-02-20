@@ -38,6 +38,7 @@
   "layers": [
     {
       "id": "0",
+      "node": "0",
       "name": "name1",
       "label" : "",
       "number": 1000000,
@@ -47,32 +48,9 @@
     {
       "id": "1",
       "name": "name2",
+      "node": "1",
       "label" : "",
       "number": 2000000,
-      "y": 0,
-      "lock": false
-    },
-    {
-      "id": "2",
-      "name": "name3",
-      "label" : "",
-      "number": 3000000,
-      "y": 0,
-      "lock": false
-    },
-    {
-      "id": "L4",
-      "name": "name4",
-      "label" : "",
-      "number": 4000000,
-      "y": 0,
-      "lock": false
-    },
-    {
-      "id": "L5",
-      "name": "name5",
-      "label" : "",
-      "number": 5000000,
       "y": 0,
       "lock": false
     }

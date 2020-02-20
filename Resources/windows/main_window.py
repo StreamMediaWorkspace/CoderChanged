@@ -1010,9 +1010,11 @@ class MainWindow(QMainWindow, updates.UpdateWatcher):
         track_number = list(reversed(sorted(all_tracks, key=itemgetter('number'))))[0].get("number") + 1000000
 
         # Create new track above existing layer(s)
-        track = Track()
-        track.data = {"number": track_number, "y": 0, "label": "", "lock": False}
-        track.save()
+        selectedNodes = self.coderWebView.getSelectedNodes()
+        for node in selectedNodes:
+            track = Track()
+            track.data = {"number": track_number, "node": node.id, "y": 0, "label": "", "lock": False}
+            track.save()
 
     def actionAddTrackAbove_trigger(self, event):
         log.info("actionAddTrackAbove_trigger")

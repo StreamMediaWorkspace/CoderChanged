@@ -68,7 +68,7 @@
 					<span class="div_selected" style="display: none;" id="track_select_{{layer.id}}"></span>
 					<span class="track_label">{{$index+1}}</span>
 					<span ng-show="layer.lock" class="track_lock"></span>
-					<span class="track_label_name">{{layer.name}}</span>
+					<span class="track_label_name">{{GetLayerNameByNodeId(layer.node)}}</span>
 					<span ng-show="layer.lock" class="track_lock"></span>
 				</div>
 			</div>
