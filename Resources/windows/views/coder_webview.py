@@ -16,6 +16,11 @@ from classes import settings
 from classes.app import get_app
 from classes.logger import log
 
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
 class CoderWebView(QWebView):
 
     # Path to html file
@@ -25,6 +30,7 @@ class CoderWebView(QWebView):
     def page_ready(self):
         """Document.Ready event has fired, and is initialized"""
         self.document_is_ready = True
+        log.info("coder page ready")
 
     def eval_js(self, code):
         # Check if document.Ready has fired in JS
@@ -49,11 +55,23 @@ class CoderWebView(QWebView):
 
     # This method is invoked by the UpdateManager each time a change happens (i.e UpdateInterface)
     def changed(self, action):
-        return
         # Remove unused action attribute (old_values)
         action = deepcopy(action)
         action.old_values = {}
+        
+        if action.type == "load":
+            project = get_app().project
+            coder = project.get(["coder"])
+        
+            nodes = coder["nodes"]
+            edges = coder["edges"]
+            for node in nodes:
+                self.eval_js("addNode('"+json.dumps(node)+"');")
+            
+            for edge in edges:
+                self.eval_js("addEdge('"+json.dumps(edge)+"');")
 
+        '''
         # Send a JSON version of the UpdateAction to the timeline webview method: ApplyJsonDiff()
         if action.type == "load":
             # Initialize translated track name
@@ -72,9 +90,11 @@ class CoderWebView(QWebView):
             # Set the scale again (to project setting)
             initial_scale = get_app().project.get(["scale"]) or 15
             get_app().window.sliderZoom.setValue(secondsToZoom(initial_scale))
+        '''
 
     def __init__(self, window):
         QWebView.__init__(self)
+        self.document_is_ready = False
         self.window = window
         #self.setAcceptDrops(True)
 

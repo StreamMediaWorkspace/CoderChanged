@@ -5,27 +5,29 @@
     <script type="text/javascript" src="./js/vis.min.js"></script>
     <link href="./css/vis-network.min.css" rel="stylesheet" type="text/css" />
     <style type="text/css">#mynetwork { width: 100%; height: 100%; border: 1px solid lightgray; } code { font-size: 15px; } p { max-width: 600px; } .indented { margin-left: 30px; } table { border-collapse: collapse; font-family: sans-serif; } table code { background: #dddddd; } th, td { border: 1px solid #aaaaaa; text-align: center; padding: 5px; font-weight: normal; }</style></head>
-  
   <body>
     <input type="button" style="width:80px;height:30px;" draggable="true" ondragstart="drag(event)" value="drag"></input>
     <div id="mynetwork" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
     <pre id="eventSpan"></pre>
+    <script type="text/javascript" src="../timeline/media/js/jquery.js"></script>
     <script type="text/javascript">
       //定义需要生成的节点
       var allnodes = [
-		    { id: 1, label: 'Coder1', margin: {top: 10, right: 20, bottom: 10, left: 30}, x: -120, y: -100 },
+		    /*{ id: 1, label: 'Coder1', margin: {top: 10, right: 20, bottom: 10, left: 30}, x: -120, y: -100 },
 		    { id: 2, font: { multi: true}, label: 'property1', x: 0, y: -120, color: 'rgb(255,168,7)'},
 		    { id: 3, font: { multi: 'html', size: 10 }, label: 'property2', x: 0, y: -80, color: 'rgb(255,168,7)'},
 	    	{ id: 4, font: { multi: 'md', face: 'georgia' }, margin: { top: 10, right: 20, bottom: 10, left: 30}, label: 'coder2', x: -120, y: -20 },
 	    	{ id: 5, font: { multi: true }, label: 'property1', x: 40, y: -40, color: 'rgb(255,168,7)' }, { id: 6, font: { multi: 'html', size: 20 }, label: 'property2', x: 40, y: 0, color: 'rgb(255,168,7)' },
+        */
       ];
       
       //定义节点连接线
       var alledges = [
-		    { from: 1, to: 2, label: "single to default" },
+		    /*{ from: 1, to: 2, label: "single to default" },
         { from: 1, to: 3, font: { multi: true }, label: "default to <b>html</b>" },
 
         { from: 4, to: 5, font: { multi: "md" }, label: "*html* to _md_" }, { from: 4, to: 6, font: { multi: "md" }, label: "*html* to _md_" },
+        */
       ];
 	  
       // 创建节点对象
@@ -90,87 +92,77 @@
         document.getElementById('eventSpan').innerHTML = '<h2>doubleClick event:</h2>' + JSON.stringify(params, null, 4);
       });
 
-    //for drag
-    function allowDrop(ev) {
-      //coderview.qt_log("=======allowDrop========");
-      ev.preventDefault();
-    }
+      //for drag
+      function allowDrop(ev) {
+        ev.preventDefault();
+      }
 
-    function drag(ev) {
-        ev.dataTransfer.setData("x", ev.offsetX);
-		    ev.dataTransfer.setData("y", ev.offsetY);
-    }
+      function drag(ev) {
+          ev.dataTransfer.setData("x", ev.offsetX);
+          ev.dataTransfer.setData("y", ev.offsetY);
+      }
 
-    function drop(e) {
+      var dragNodeWidth = 40
+      var dragNodeHeight = 20
+      function drop(e) {
         e.preventDefault();
         //var data=ev.dataTransfer.getData("Text");
         //ev.target.appendChild(document.getElementById(data));
 
-        
         var evt = e || event;
 
         width = document.getElementById("mynetwork").offsetWidth;
-        height = document.getElementById("mynetwork").offsetWidth;
+        height = document.getElementById("mynetwork").offsetHeight;
         
-        
-		    var left = evt.offsetX - e.dataTransfer.getData("x") - width / 2;
-        var top = evt.offsetY - e.dataTransfer.getData("y") - height / 2 + 10;
+        var left = evt.offsetX - evt.dataTransfer.getData("x") - width / 2 + dragNodeWidth;
+        var top = evt.offsetY - evt.dataTransfer.getData("y") - height / 2 + dragNodeHeight;
+      
+        var id = network.body.data.nodes.length + 1;
+        node = {id: ""+id, text: "hello", x: left, y: top, depth: 0};
+	      addNode(JSON.stringify(node));
+      }
+	
+      function log(message) {
+        if (Qt) {
+          coderview.qt_log(message);
+        } else {
+          console.log(message);
+        }
+      }
+  
+      //===============to python==============
+      function addNode(node) {
+        try {
+          log("=======addNode========"+node);
+          node = JSON.parse(node)
+          if (node.depth == 0) {
+            network.body.data.nodes.add([{ id: node.id, font: { multi: 'html', size: 18 }, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: 'rgb(255,168,7)'}]);
+          } else {
+            network.body.data.nodes.add([{ id: node.id, font: { multi: true}, label: node.text, x: node.x, y: node.y, color: 'rgb(255,168,7)'}]);
+          }
+        } catch(err) {
+          log("=======js error:========" + err);
+        }
+      }
+  
+      function addEdge(edge) {
+        log("=======addEdge========"+edge);
+        edge = JSON.parse(edge)
+        network.body.data.edges.add([{id: edge.id, from: edge.from, to: edge.to}]);
+      }
 
-        //coderview.qt_log("=======allowDrop========"+left+","+top);
-		
-        addNode(left, top);
-    }
-
-    function addNode(left, top) {
-	      //e.preventDefault();
-		    var id = allnodes.length + 1;
-		    obj = createNode(id, "hello", left, top);
-		    allnodes.push(obj);
-        addNodeObject(obj);
-    }
-	  
-	  function addNodeObject(nodeObject) {
-		    nodes.add(nodeObject);
-        network.enableEditMode();
-        network.addNodeMode();
-	  }
-	  
-	  /*function addPropertyObject(propertyObject){
-		nodes.add(nodeObject);
-        network.enableEditMode();
-        network.addNodeMode();
-	  }
-	  
-	  function addEdgeObject(edgeObject) {
-		edges.add(nodeObject);
-        network.enableEditMode();
-        network.addNodeMode();
-	  }
-	  
-	  function addProperty(nodeObj, textList) {
-	      var len = textList.length;
-		  for (var i=0; i<len; i++) {
-		      var x = nodeObj.x + 20;
-			  var y = nodeObj.y + (i-len/2)*20;
-			  var propertyID = nodeObj.id + i;
-			  var property = createProperty(propertyID, textList[i], x, y);
-			  addPropertyObject(property);
-			  var edge = createEdge(nodeObj.id, propertyID);
-			  addEdgeObject(edge);
-		  }
-	  }*/
-	  
-  function createNode(id, text, left, top) {
-		return { id: id, font: { multi: 'html', size: 20 }, margin: { top: 10, right: 20, bottom: 10, left: 30 }, label: text, x: left, y: top, color: 'rgb(255,168,7)'};
-	}
-	  
-	function createProperty(id, text, left, top) {
-	    return { id: id, font: { multi: true}, label: text, x: left, y: top, color: 'rgb(255,168,7)'};
-	}
-	  
-	function createEdge(nodeID, propertyID) {
-	  return { from: nodeID, to: propertyID, label: "" };
-	}
+      // Wait for document ready event
+      var Qt = false;
+      $(document).ready(function() {
+        // Check for Qt Integration
+        if (typeof coderview != 'undefined') {
+          coderview.qt_log("coder Qt Found!");
+          Qt = true;
+          coderview.page_ready();
+        } else {
+          console.log("Qt NOT Found!");
+        }
+      });
 </script>
 
 </html>
