@@ -100,12 +100,11 @@
       };
 
       var network = new vis.Network(container, data, options);
-      var selectedNodes = [];
       network.on("click", function(params) {
         params.event = "[original event]";
         document.getElementById('eventSpan').innerHTML = '<h2>Click event:</h2>' + JSON.stringify(params, null, 4);
         console.log('click event, getNodeAt returns: ' + this.getNodeAt(params.pointer.DOM));
-        if (params) {
+        /*if (params) {
           nodes = params.nodes;
           if (nodes.length == 0) {
             selectedNodes.length = 0;
@@ -120,7 +119,7 @@
             }
         }
         log("selected:"+JSON.stringify(selectedNodes))
-      }
+      }*/
     });
 
     network.on("doubleClick", function(params) {
@@ -226,8 +225,15 @@
       }
     });
 
+    // update an existing item
+    //data.update({id: 2, group: 1});
+
+    //https://www.hlt.inesc-id.pt/~david/wiki/pt/extensions/vis/docs/dataset.html
+
+
     function getSelectedCoder() {
-      return JSON.stringify(selectedNodes);
+      log("select:"+network.getSelection().nodes);
+      return JSON.stringify(network.getSelection().nodes);
     }
 </script>
 </body>
