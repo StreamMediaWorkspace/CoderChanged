@@ -200,7 +200,7 @@
       try {
         log("=======addNode========"+node);
         node = JSON.parse(node)
-        network.body.data.nodes.add([{ id: node.id, nodeType: node.nodeType, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: node.color}]);
+        network.body.data.nodes.add([{id: node.id, nodeType: node.nodeType, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: node.color}]);
       } catch(err) {
         log("=======js error:========" + err);
       }
