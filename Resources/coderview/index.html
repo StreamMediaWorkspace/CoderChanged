@@ -1,16 +1,17 @@
 <!doctype html>
 <html>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <head>
     <title>Network | Multifont Labels</title>
     <script type="text/javascript" src="./js/vis.min.js"></script>
     <link href="./css/vis-network.min.css" rel="stylesheet" type="text/css" />
-    <style type="text/css">#mynetwork { width: 300px; height: 90%; border: 1px solid lightgray; } code { font-size: 15px; } p { max-width: 600px; } .indented { margin-left: 30px; } table { border-collapse: collapse; font-family: sans-serif; } table code { background: #dddddd; } th, td { border: 1px solid #aaaaaa; text-align: center; padding: 5px; font-weight: normal; }</style></head>
+    <style type="text/css">#mynetwork { width: 100%; height: 100%; border: 1px solid lightgray; } code { font-size: 15px; } p { max-width: 600px; } .indented { margin-left: 30px; } table { border-collapse: collapse; font-family: sans-serif; } table code { background: #dddddd; } th, td { border: 1px solid #aaaaaa; text-align: center; padding: 5px; font-weight: normal; }</style></head>
   <body>
-    <input type="button" style="width:80px;height:30px;" draggable="true" ondragstart="drag(event)" value="drag"></input>
-    <center>
-      <div id="mynetwork" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-      <pre id="eventSpan"></pre>
-  </center>
+    <input type="button" style="width:80px;height:30px;background-color:#ff0000" color="#ff0000" nodeType=0 draggable="true" ondragstart="dragstart(event)" value="编码"></input>
+    <input type="button" style="width:80px;height:30px;background-color:#00ff00" color="#00ff00" nodeType=1 draggable="true" ondragstart="dragstart(event)" value="标签"></input>
+    <br>
+    <div id="mynetwork" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    <pre id="eventSpan"></pre>
     <script type="text/javascript" src="../timeline/media/js/jquery.js"></script>
     <script type="text/javascript">
     document.body.parentNode.style.overflowY = "hidden";
@@ -65,7 +66,7 @@
         interaction: {
           hover:true,
           dragNodes: true, //是否能拖动节点
-          dragView: false, //是否能拖动画布
+          dragView: true, //是否能拖动画布
           hover: true, //鼠标移过后加粗该节点和连接线
           multiselect: true, //按 ctrl 多选
           selectable: true, //是否可以点击选择
@@ -108,7 +109,7 @@
           nodes = params.nodes;
           if (nodes.length == 0) {
             selectedNodes.length = 0;
-          } else {
+        } else {
             for (var i = 0; i < nodes.length; i++) {
               var index = selectedNodes.indexOf(nodes[i]);
               if (index == -1) {
@@ -117,116 +118,117 @@
                 selectedNodes.splice(nodes[i], 1);
               }
             }
-          }
-          log("selected:"+JSON.stringify(selectedNodes))
         }
-      });
-
-      network.on("doubleClick", function(params) {
-        params.event = "[original event]";
-        document.getElementById('eventSpan').innerHTML = '<h2>doubleClick event:</h2>' + JSON.stringify(params, null, 4);
-        log("doubleclick:"+JSON.stringify(params))
-        if (Qt && params) {
-          nodes = params.nodes;
-          for (var i=0; i<nodes.length; i++) {
-            coderview.onNodeDoubleClicked(nodes[i]);
-          }
-        }
-      });
-
-      network.on("dragEnd", function (params) {
-        if (params) {
-          nodes = params.nodes;
-          x = params.pointer.canvas.x;
-          y = params.pointer.canvas.y;
-          for (var i=0; i<nodes.length; i++) {
-            node = {id: nodes[i], x: x, y: y};
-            if (Qt) {
-              coderview.onNodeUpdate(JSON.stringify(node));
-            }
-          }
-        }
-      });
-
-      //for drag
-      function allowDrop(ev) {
-        ev.preventDefault();
+        log("selected:"+JSON.stringify(selectedNodes))
       }
+    });
 
-      function drag(ev) {
-          ev.dataTransfer.setData("x", ev.clientX);
-          ev.dataTransfer.setData("y", ev.clientY);
+    network.on("doubleClick", function(params) {
+      params.event = "[original event]";
+      document.getElementById('eventSpan').innerHTML = '<h2>doubleClick event:</h2>' + JSON.stringify(params, null, 4);
+      log("doubleclick:"+JSON.stringify(params))
+      if (Qt && params) {
+        nodes = params.nodes;
+        for (var i=0; i<nodes.length; i++) {
+          coderview.onNodeDoubleClicked(nodes[i]);
+        }
       }
+    });
 
-      var dragNodeWidth = 40
-      var dragNodeHeight = 20
-      function drop(e) {
-        e.preventDefault();
-        //var data=ev.dataTransfer.getData("Text");
-        //ev.target.appendChild(document.getElementById(data));
+    network.on("dragEnd", function (params) {
+      if (params) {
+        nodes = params.nodes;
+        x = params.pointer.canvas.x;
+        y = params.pointer.canvas.y;
+        for (var i=0; i<nodes.length; i++) {
+          node = {id: nodes[i], x: x, y: y};
+          if (Qt) {
+            coderview.onNodeUpdate(JSON.stringify(node));
+          }
+        }
+      }
+    });
 
-        var evt = e || event;
+    //for drag
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
 
-        width = document.getElementById("mynetwork").offsetWidth;
-        height = document.getElementById("mynetwork").offsetHeight;
-        
-        var left = evt.clientX - evt.dataTransfer.getData("x") - width / 2 + dragNodeWidth;
-        var top = evt.clientY - evt.dataTransfer.getData("y") - height / 2;
+    function dragstart(ev) {
+      ev.dataTransfer.setData("x", ev.clientX - ev.target.offsetLeft - ev.target.offsetWidth / 2);
+      ev.dataTransfer.setData("y", ev.clientY + ev.target.offsetHeight / 2);
+      ev.dataTransfer.setData("nodeType", ev.target.getAttribute("nodeType"));
+      ev.dataTransfer.setData("color", ev.target.getAttribute("color"));
+    }
+
+    function drop(e) {
+      e.preventDefault();
+      //var data=ev.dataTransfer.getData("Text");
+      //ev.target.appendChild(document.getElementById(data));
+
+      var evt = e || event;
+
+      width = document.getElementById("mynetwork").offsetWidth;
+      height = document.getElementById("mynetwork").offsetHeight;
+      nodeType = parseInt(evt.dataTransfer.getData("nodeType"));
+      color = evt.dataTransfer.getData("color");
+
+      viewPosition = network.getViewPosition();
+      scale = network.getScale()
       
-        var id = network.body.data.nodes.length + 1;
-        node = {id: ""+id, text: "hello", x: left, y: top, depth: 0, color: "00ffff"};
-        node_json = JSON.stringify(node);
-        addNode(node_json);
-        if (Qt) {
-          coderview.onNodeAdded(node_json);
-        }
+      var left = (evt.clientX - evt.dataTransfer.getData("x") - width / 2) / scale + viewPosition.x;
+      var top = (evt.clientY - evt.dataTransfer.getData("y") - height / 2) / scale + viewPosition.y;
+      
+      var id = network.body.data.nodes.length + 1;
+      node = {id: ""+id, text: "hello", x: left, y: top, nodeType: nodeType, color: color};
+      node_json = JSON.stringify(node);
+      addNode(node_json);
+      if (Qt) {
+        coderview.onNodeAdded(node_json);
       }
+    }
 	
-      function log(message) {
-        if (Qt) {
-          coderview.qt_log(message);
-        } else {
-          console.log(message);
-        }
+    function log(message) {
+      if (Qt) {
+        coderview.qt_log(message);
+      } else {
+        console.log(message);
       }
+    }
   
-      //===============to python==============
-      function addNode(node) {
-        try {
-          log("=======addNode========"+node);
-          node = JSON.parse(node)
-          if (node.depth == 0) {
-            network.body.data.nodes.add([{ id: node.id, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: node.color}]);
-          } else {
-            network.body.data.nodes.add([{ id: node.id, label: node.text, x: node.x, y: node.y, color: node.color}]);
-          }
-        } catch(err) {
-          log("=======js error:========" + err);
-        }
+    //===============to python==============
+    function addNode(node) {
+      try {
+        log("=======addNode========"+node);
+        node = JSON.parse(node)
+        network.body.data.nodes.add([{ id: node.id, nodeType: node.nodeType, margin: { top: 5, right: 10, bottom: 5, left: 10 }, label: node.text, x: node.x, y: node.y, color: node.color}]);
+      } catch(err) {
+        log("=======js error:========" + err);
       }
+    }
   
-      function addEdge(edge) {
-        log("=======addEdge========"+edge);
-        edge = JSON.parse(edge)
-        network.body.data.edges.add([{id: edge.id, from: edge.from, to: edge.to}]);
-      }
+    function addEdge(edge) {
+      log("=======addEdge========"+edge);
+      edge = JSON.parse(edge)
+      network.body.data.edges.add([{id: edge.id, from: edge.from, to: edge.to}]);
+    }
 
-      // Wait for document ready event
-      var Qt = false;
-      $(document).ready(function() {
-        // Check for Qt Integration
-        if (typeof coderview != 'undefined') {
-          coderview.qt_log("coder Qt Found!");
-          Qt = true;
-          coderview.page_ready();
-        } else {
-          console.log("Qt NOT Found!");
-        }
-      });
-
-      function getSelectedCoder(){
-        return JSON.stringify(selectedNodes);
+    // Wait for document ready event
+    var Qt = false;
+    $(document).ready(function() {
+      // Check for Qt Integration
+      if (typeof coderview != 'undefined') {
+        coderview.qt_log("coder Qt Found!");
+        Qt = true;
+        coderview.page_ready();
+      } else {
+        console.log("Qt NOT Found!");
       }
+    });
+
+    function getSelectedCoder() {
+      return JSON.stringify(selectedNodes);
+    }
 </script>
 </body>
 </html>

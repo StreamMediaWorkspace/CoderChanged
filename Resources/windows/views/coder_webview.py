@@ -97,7 +97,7 @@ class CoderWebView(QWebView, updates.UpdateInterface):
         coder = project.get(["coder"])
         nodes = coder["nodes"]
         n = json.loads(n)
-        node = {"id": n["id"], "text": n["text"], "x": n["x"], "y": n["y"], "depth": 0, "color": n["color"]}
+        node = {"id": n["id"], "text": n["text"], "x": n["x"], "y": n["y"], "nodeType": 0, "color": n["color"]}
         nodes.append(node)
         print("=======", nodes)
     
@@ -128,7 +128,7 @@ class CoderWebView(QWebView, updates.UpdateInterface):
         ids = json.loads(node_json)
         for id in ids:
             for node in nodes:
-                if node["id"] == id and node["depth"] == 0:
+                if node["id"] == id:
                     selected_nodes.append(node)
                     break
         print("====getSelectedNodes===", selected_nodes)
