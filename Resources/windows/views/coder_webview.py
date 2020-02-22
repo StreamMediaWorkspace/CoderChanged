@@ -119,13 +119,20 @@ class CoderWebView(QWebView, updates.UpdateInterface):
     def onNodeDoubleClicked(self, nodeId):
         print("=====onNodeDoubleClicked====", nodeId)
         #self.getSelectedNodes()
-        nodeEditor = NodeEditor(self.getNodeById(nodeId), self.getEdgeByFromNodeId(nodeId))
-        result = nodeEditor.exec_()
+        edge = self.getEdgeByFromNodeId(nodeId)
+        nodeEditor = NodeEditor(self.getNodeById(nodeId), edge)
+        nodeEditor.exec_()
         if nodeEditor.Accept:
             text = nodeEditor.lineEditText.text()
-            self.updateNode({"id": nodeId, "label": text})
-            self.updateNodeObject(nodeId, "text", text)
+            self.updateNodeText(nodeId, text)
             log.info('NodeEditor Finished')
+
+            to_node = nodeEditor.comboBoxToNode.itemData(nodeEditor.comboBoxToNode.currentIndex())
+            print("=====----", to_node)
+            edge_id = -1
+            if edge:
+                edge_id = edge.id
+            self.updateEdge(edge_id, nodeId, to_node)
         else:
             log.info('NodeEditor Cancelled')
 
@@ -146,8 +153,14 @@ class CoderWebView(QWebView, updates.UpdateInterface):
         return selected_nodes
 
     
-    def updateNode(self, json_obj):
-        self.eval_js("updateNode('" + json.dumps(json_obj) + "');")
+    def updateNodeText(self, id, value):
+        self.eval_js("updateNodeText('" + str(id) + "', '" + value + "');")
+
+    def onUpdateNodeText(self, id, value):
+        self.updateNodeObject(id, "text", value)
+
+    def updateEdge(self, id, from_node, to):
+        self.eval_js("updateEdge('" + str(id) + "', '" + from_node + "', '" + to + "');")
 
 
     def updateNodeObject(self, id, key, value):

@@ -48,10 +48,12 @@ class NodeEditor(QDialog):
         project = get_app().project
         coder = project.get(["coder"])
         nodes = coder["nodes"]
+        self.comboBoxToNode.addItem("select", "-1")
         for node in nodes:
             if node["nodeType"] != 1:
                 self.comboBoxToNode.addItem(node["text"], node["id"])
 
+        '''
         if edge:
             to_node = self.getNodeNameById(edge["to"])
             if to_node:
@@ -60,6 +62,7 @@ class NodeEditor(QDialog):
                 self.comboBoxToNode.setCurrentText("no seleted")
         else:
             self.comboBoxToNode.setCurrentText("no seleted")
+        '''
 
         
     def onAccept(self):

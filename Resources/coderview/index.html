@@ -231,15 +231,19 @@
 
     //https://www.hlt.inesc-id.pt/~david/wiki/pt/extensions/vis/docs/dataset.html
 
-    function updateNode(json) {
-      log("updateNode---"+json);
-      //network.body.data.nodes.update({id: "0", label: "swswsw"});
-      //g_nodes.update({id: "0", label: "swswsw"});
-      network.body.data.nodes.update(JSON.parse(json));
+    function updateNodeText(id, label) {
+      network.body.data.nodes.update({id: id, label: label});
+      coderview.onUpdateNodeText(id, label);
     }
 
-    function updateEdge(json) {
-      network.body.data.edges.update(JSON.parse(json));
+    function updateEdge(id, from, to) {
+      if (to != -1) {
+        network.body.data.edges.update({id: id, from: from, to: to});
+      } else {
+          //edges ={id: edge.id, from: edge.from, to: edge.to};
+          network.body.data.edges.remove(id);
+          coderview.deleteEdge(id);
+      }
     }
 
     function getSelectedCoder() {
