@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NodeEditDialog</class>
- <widget class="QDialog" name="NodeEditDialog">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,21 +13,11 @@
   <property name="windowTitle">
    <string>Node Edit Dialog</string>
   </property>
-  <widget class="QLineEdit" name="lineEditText">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>20</y>
-     <width>113</width>
-     <height>21</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>20</y>
+     <x>100</x>
+     <y>10</y>
      <width>60</width>
      <height>16</height>
     </rect>
@@ -36,11 +26,41 @@
     <string>标签</string>
    </property>
   </widget>
+  <widget class="QLineEdit" name="lineEditText">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>10</y>
+     <width>113</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEditShotCut">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>130</y>
+     <width>113</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBoxToNode">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>200</y>
+     <width>104</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>140</y>
+     <x>90</x>
+     <y>130</y>
      <width>60</width>
      <height>16</height>
     </rect>
@@ -49,14 +69,30 @@
     <string>快捷键</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEditShotCut">
+  <widget class="QPushButton" name="pushButtonCancel">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>140</y>
+     <x>190</x>
+     <y>240</y>
      <width>113</width>
-     <height>21</height>
+     <height>32</height>
     </rect>
+   </property>
+   <property name="text">
+    <string>取消</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButtonOK">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>240</y>
+     <width>113</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>确定</string>
    </property>
   </widget>
  </widget>

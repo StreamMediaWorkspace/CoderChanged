@@ -16,6 +16,8 @@ from classes import settings
 from classes.app import get_app
 from classes.logger import log
 
+from windows.node_editor import NodeEditor
+
 try:
     import json
 except ImportError:
@@ -116,8 +118,17 @@ class CoderWebView(QWebView, updates.UpdateInterface):
     @pyqtSlot(str)
     def onNodeDoubleClicked(self, nodeId):
         print("=====onNodeDoubleClicked====", nodeId)
-        self.getSelectedNodes()
-        return
+        #self.getSelectedNodes()
+        nodeEditor = NodeEditor(self.getNodeById(nodeId), self.getEdgeByFromNodeId(nodeId))
+        result = nodeEditor.exec_()
+        if nodeEditor.Accept:
+            text = nodeEditor.lineEditText.text()
+            self.updateNode({"id": nodeId, "label": text})
+            self.updateNodeObject(nodeId, "text", text)
+            log.info('NodeEditor Finished')
+        else:
+            log.info('NodeEditor Cancelled')
+
 
     def getSelectedNodes(self):
         selected_nodes = []
@@ -133,6 +144,43 @@ class CoderWebView(QWebView, updates.UpdateInterface):
                     break
         print("====getSelectedNodes===", selected_nodes)
         return selected_nodes
+
+    
+    def updateNode(self, json_obj):
+        self.eval_js("updateNode('" + json.dumps(json_obj) + "');")
+
+
+    def updateNodeObject(self, id, key, value):
+        project = get_app().project
+        coder = project.get(["coder"])
+        nodes = coder["nodes"]
+        for node in nodes:
+            if node["id"] == id:
+                node[key] = value
+                return True
+        
+        return False
+       
+
+    def getNodeById(self, id):
+        project = get_app().project
+        coder = project.get(["coder"])
+        nodes = coder["nodes"]
+
+        for node in nodes:
+            if node["id"] == id:
+                return node
+        return None
+
+    def getEdgeByFromNodeId(self, id):
+        project = get_app().project
+        coder = project.get(["coder"])
+        edges = coder["edges"]
+
+        for edge in edges:
+            if edge["from"] == id:
+                return edge
+        return None
 
     def __init__(self, window):
         QWebView.__init__(self)
