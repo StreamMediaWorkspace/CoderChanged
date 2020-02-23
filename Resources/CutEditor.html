@@ -1,0 +1,44 @@
+<html>
+    <body>
+            <html>
+                    <body>
+                            <script type="text/javascript" src="./timeline/media/js/jquery.js"></script>
+                
+                            <style>
+                                table{border-collapse:collapse;}
+                                table td{border: 1px solid black;}
+                             </style>
+                             
+                             <table cellspacing="0" cellpadding="0" id="aaa">
+                               <tr><td>none</td><td>得到</td><td>得到</td></tr>
+                               <tr><td>得到</td><td>得到</td><td>得到</td></tr> 
+                               <tr><td>得到</td><td>得到</td><td>得到</td></tr> 
+                               <tr><td>得到</td><td>得到</td><td>得到</td></tr> 
+                             </table>
+                             <script>
+                             $(function(){
+                             setTblNo("aaa");
+                             })
+                             
+                             function setTblNo(tblid)
+                             {
+                                var oTbl=$("#"+tblid);
+                                oTbl.find("tr:first >td").css("border-top","none");//去掉上边框
+                                oTbl.find("tr:first >td").css("height","100px");
+                                oTbl.find("tr:first >td").css("-webkit-transform", "rotate(90deg)");//文字旋转90度
+                                oTbl.find("tr:first >td").css("text-align","right");
+
+                                oTbl.find("tr:last >td").css("border-bottom","none");//去掉下边框
+
+                                oTbl.find("tr >td:first-child").css("border-left","none");//去掉左边框
+                                oTbl.find("tr >td:first-child").css("width","100px");
+                                oTbl.find("tr >td:first-child").css("text-align","right");
+
+                                oTbl.find("tr >td:last-child").css("border-right","none");//去掉右边框
+                             }
+                             
+                             </script>
+                            
+                    </body>
+                </html>
+</html>
